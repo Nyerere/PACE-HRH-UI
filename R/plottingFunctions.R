@@ -129,7 +129,7 @@ byServiceCat_plot <- function(rv, plotly=TRUE){
     theme(legend.position = c(0.02, 1), legend.justification = c(0.02, 1), legend.key.size=unit(0.3, 'cm'), legend.direction="vertical", legend.background = element_rect(fill = 'transparent'))+
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
     scale_fill_brewer(palette = "BrBG", direction = -1)+
-    labs(x="", y="Hours per Week for Catchment Pop")
+    labs(x="", y="Hours per Week for Catchment Popp")
   
   if(plotly){
     ggplotly(plot)
