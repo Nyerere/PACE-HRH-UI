@@ -2,7 +2,7 @@ library(pacehrh)
 library(plotly)
 library(treemapify)
 library(mgcv)
-
+ 
 # ------------------Fertility Plot --------------------
 get_fertility_rates_time_series_plot <- function(rv) {
   StartYear <-  rv$start_year 
@@ -20,9 +20,7 @@ get_fertility_rates_time_series_plot <- function(rv) {
   ggplotly(plot)
 }
 
-
 #--------------------Population plot------------------
-
 get_population_plot <- function(rv) {
   StartYear <-  rv$start_year 
   EndYear <-  rv$end_year 
@@ -50,8 +48,6 @@ get_population_plot <- function(rv) {
   ggplotly(plot)
   
 }
-
-
 
 # -----------------Slide 4 plot---------------------
 get_slide_4_plot <- function(rv, plotly=TRUE){
@@ -139,6 +135,7 @@ byServiceCat_plot <- function(rv, plotly=TRUE){
   
 }
 
+# -----------------by CadreRoles plot---------------------
 byCadreRoles_plot <-  function(rv, plotly=TRUE){
 
   StartYear <-  rv$start_year + 1 
@@ -171,7 +168,6 @@ byCadreRoles_plot <-  function(rv, plotly=TRUE){
   }
   
 }
-
 
 # -----------------by ServiceCat tile plot---------------------
 byServiceTile_plot <- function(rv, plotly=TRUE){
@@ -264,7 +260,6 @@ serviceOverTime_plot <- function(rv, plotly=TRUE){
   
 }
 
-
 # -----------------seasonality plot---------------------
 seasonality_plot <- function(rv, plotly=TRUE){
  
@@ -307,8 +302,7 @@ seasonality_plot <- function(rv, plotly=TRUE){
   
 }
 
-
-
+# -----------------pdf report---------------------
 get_pdf_report <- function(rv){
   # print to pdf
   current_datetime <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
