@@ -120,7 +120,6 @@ viewRunsServer <- function(id, rv, store) {
       df_history <- df_history[rev(rownames(df_history)), ]
       df_history$datetime <- as.POSIXct(df_history$date, format = "%m/%d/%Y, %I:%M:%S %p", tz = "UTC")
       rv$df_history <-  df_history%>% arrange(desc(datetime))  %>% select(-(datetime), -(catchment_pop), -(hrs_per_wk), -(max_utilization))
-      print(rv$df_history)
       selectedRows(c(TRUE, rep(FALSE, nrow(rv$df_history)-1)))
       output$history_table <- renderDT({
         checkboxData <- transform(rv$df_history, Select = sprintf('<input type="checkbox" name="row_selected" %s/>', ifelse(selectedRows(), "checked", "")))
