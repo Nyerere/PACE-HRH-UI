@@ -48,6 +48,8 @@ viewRunsUI <- function(id) {
                     title = "Service change over time"),
           plotTabUI(id = ns("seasonality-tab"),
                     title = "Seasonality"),
+          # plotTabUI(id = ns("individual-ServiceCat-tab"),
+          #           title = "Individual Service Category Plots"),
         ),
       )
   )
@@ -115,6 +117,7 @@ viewRunsServer <- function(id, rv, store) {
       df_history$summary <- apply(df_history, 1, function(row) {
         read_info(row["name"])
       })
+      df_history <- df_history[rev(rownames(df_history)), ]
       df_history$datetime <- as.POSIXct(df_history$date, format = "%m/%d/%Y, %I:%M:%S %p", tz = "UTC")
       rv$df_history <-  df_history%>% arrange(desc(datetime))  %>% select(-(datetime), -(catchment_pop), -(hrs_per_wk), -(max_utilization))
       selectedRows(c(TRUE, rep(FALSE, nrow(rv$df_history)-1)))
@@ -313,6 +316,11 @@ viewRunsServer <- function(id, rv, store) {
               id = "seasonality-tab",
               plotting_function = "seasonality_plot",
               rv = rv_results)
+            
+            # plotTabServer(
+            #   id = "individual-ServiceCat-tab",
+            #   plotting_function = "individual_service_category_plot",
+            #   rv = rv_results)
             
             redraw(FALSE)
           }
