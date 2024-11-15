@@ -2,7 +2,18 @@ library(pacehrh)
 library(plotly)
 library(treemapify)
 library(mgcv)
- 
+library(RColorBrewer)
+
+#-------------------Global Variables-------------------
+
+sc_fillScale <- scale_fill_manual(name = "ServiceCat",values = sc_colours)
+sc_colorScale <- scale_color_manual(name = "ServiceCat",values = sc_colours)
+cc_fillScale <- scale_fill_manual(name = "Category",values = cc_colours)
+cc_colorScale <- scale_color_manual(name = "Category",values = cc_colours)
+
+#set hours per week for secondary axis
+#hrsperweek <- ServiceCat_Clinical$HrsPerWeek[1]
+
 # ------------------Fertility Plot --------------------
 get_fertility_rates_time_series_plot <- function(rv) {
   StartYear <-  rv$start_year 
@@ -49,12 +60,10 @@ get_population_plot <- function(rv) {
   
 }
 
-# -----------------Slide 4 plot---------------------
+# -----------------by Clinical Cat plot---------------------
 get_slide_4_plot <- function(rv, plotly=TRUE){
- 
   StartYear <-  rv$start_year + 1
   EndYear <-  rv$end_year 
-  
   temp_clin <- rv$Mean_ClinCat %>%
     filter(Year >= StartYear & Year <= EndYear) %>% 
     mutate(Category = case_when(
@@ -82,13 +91,42 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
     theme_bw()+
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
     labs(y=ylabel,x="")+
-    scale_fill_viridis_d()+
+    cc_fillScale+
+   # scale_fill_viridis_d(option = "A")+
+  #   scale_y_continuous(
+  #   name = "Left Axis (y)",                                # Label for left axis
+  #   sec.axis = sec_axis(~ . * 2, name = "Right Axis (y2)") # Secondary axis with reverse transformation
+  # ) +
     facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40)))
   
   if(plotly){
-    ggplotly(plot)
+    print("plotly")
+    p_plotly <- ggplotly(plot) %>%
+      layout(
+        margin = list(l = 50, r = 50, b = 100, t = 50) ,
+        yaxis2 = list(
+          title = "Logarithmic (y2)",
+          overlaying = "y",  # Overlay second y-axis
+          side = "right",     # Put y2 on the right
+          range = c(min(0) -5, maxyval+7)
+         # range = c(min(temp_clin$MeanHrs/temp_clin$WeeksPerYr), max(temp_clin$MeanHrs/temp_clin$WeeksPerYr)),
+        ),
+        legend = list(
+          x = 1.3,            # Move it to the right (beyond 1 moves it outside the plot area)
+          y = 1,              # Align it to the top
+          xanchor = "left",   # Position the legend box to the left of its x position
+          yanchor = "top"     # Position the legend box to the top of its y position
+        )
+      ) %>% 
+      add_trace(
+        x = temp_clin$Year, y = temp_clin$MeanHrs/temp_clin$WeeksPerYr,  # Dummy trace with no data
+        yaxis = "y2",       # Tie it to the second y-axis
+        showlegend = FALSE  # Hide the trace from the legend
+      )
+    p_plotly
   }
   else{
+    print("plot")
     plot
   }
   
@@ -96,7 +134,6 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
 
 # -----------------by ServiceCat bar plot---------------------
 byServiceCat_plot <- function(rv, plotly=TRUE){
-
   StartYear <-  rv$start_year + 1 
   EndYear <-  rv$end_year 
   
@@ -124,8 +161,9 @@ byServiceCat_plot <- function(rv, plotly=TRUE){
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1))+
     theme(legend.position = c(0.02, 1), legend.justification = c(0.02, 1), legend.key.size=unit(0.3, 'cm'), legend.direction="vertical", legend.background = element_rect(fill = 'transparent'))+
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
-    scale_fill_brewer(palette = "BrBG", direction = -1)+
-    labs(x="", y="Hours per Week for Catchment Popp")
+    #scale_fill_brewer(palette = "BrBG", direction = -1)+
+    sc_fillScale +
+    labs(x="", y="Hours per Week for Catchment Pop")
   
   if(plotly){
     ggplotly(plot)
@@ -209,7 +247,8 @@ byServiceTile_plot <- function(rv, plotly=TRUE){
   plot <- ggplot(temp_ServiceCat,aes(x=Year,y=MeanHrs/Denominator,fill=ServiceLabel))+
     geom_bar(stat="identity",position="fill")+
     theme_bw() + 
-    scale_fill_viridis_d()+
+    #scale_fill_viridis_d()+
+    sc_fillScale +
     geom_text(aes(label=paste(round(MeanHrs/Denominator*100,0),sep="")), position = position_fill(vjust = 0.5))+
     facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40))) +
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
@@ -246,7 +285,7 @@ serviceOverTime_plot <- function(rv, plotly=TRUE){
     geom_line(aes(color=ServiceCat),size=1.1) +
     geom_hline(yintercept = 1,color="black") +
     theme_bw() +
-    scale_color_discrete()+
+    sc_colorScale+
     geom_text(data=subset(ServiceCat_Clinical,Year==max(ServiceCat_Clinical$Year))) +
     facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40))) +
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
@@ -302,6 +341,113 @@ seasonality_plot <- function(rv, plotly=TRUE){
   
 }
 
+# -----------------individual service category plot---------------------
+individual_service_category_plot <- function(rv, plotly=TRUE){
+  StartYear <-  rv$start_year + 1 
+  EndYear <-  rv$end_year 
+  
+  ServiceCat_Clinical <- rv$Mean_ServiceCat %>%
+    subset(ClinicalOrNon=="Clinical") %>%
+    filter(Year >= StartYear & Year <= EndYear) %>% 
+    dplyr::mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep="")) %>%
+    group_by(Scenario_label, Year) %>%
+    dplyr::mutate(TotalHrs=sum(MeanHrs)) 
+  
+  sorted_data <- ServiceCat_Clinical %>%
+    arrange(desc(MeanHrs/WeeksPerYr))
+  
+  filtered_data <- sorted_data 
+  
+  plot <- ggplot() +
+    theme_bw() +
+    geom_bar(data = filtered_data, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = ServiceCat), stat = "identity", alpha = 0.9) +
+    geom_smooth(data = filter(filtered_data, ServiceCat != "Total Clinical"),  # Filter out "Total Clinical"
+                aes(x = Year, y = MeanHrs/WeeksPerYr, group = ServiceCat),
+                method = "loess", se = FALSE, color = "black", size = 1) +
+    #ylim(0, ymax) +
+    facet_wrap(~reorder(ServiceCat, -filtered_data$MeanHrs), scales = "free_y", nrow =4) +  # Facet by reordered ServiceCat
+    theme(panel.spacing = unit(1, "pt"))+
+    scale_x_continuous(breaks = c(2021, 2025, 2030, 2035)) +
+    # scale_y_continuous(sec.axis = sec_axis(~ . / hrsperweek, name = "", breaks = NULL)) +  # Make secondary axis invisible
+    sc_fillScale +  # Include the fill scale
+    labs(
+      x = "Year",
+      y = "Hours per Week per Catchment Pop",
+      title = "Time Allocation by Service Categoryyy"
+    ) +
+    theme(
+      legend.position = "",  # Position legend at the bottom
+      legend.title = element_blank(),  # Remove legend title
+      legend.text = element_text(size = 13),  # Adjust legend text size
+      axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1, size = 13),
+      axis.text.y = element_text(size = 13),  # Adjust axis text size
+      axis.title = element_text(size = 14, face = "bold"),
+      strip.text = element_text(size = 13, face = "bold"),
+      plot.title = element_text(size = 16, face = "bold")
+    )
+  
+
+  if(plotly){
+    ggplotly(plot)
+  } else{
+    plot
+  }
+  
+}
+
+# -----------------individual clinical category plot---------------------
+individual_clinical_category_plot <- function(rv, plotly=FALSE){
+  
+  temp_clin <- rv$Mean_ClinCat %>% 
+    filter(Year >= 2021 & Year <= 2040) %>% 
+    dplyr::mutate(Category = case_when(
+      ClinicalOrNon != "Clinical" ~ ClinicalOrNon,
+      ClinicalOrNon == "Clinical" ~ paste("Clinical -", ClinicalCat))) %>% 
+    dplyr::mutate(Alpha = case_when(
+      ClinicalOrNon == "Clinical" ~ 0.3,
+      ClinicalOrNon != "Clinical" ~ 1)) %>% 
+    dplyr::mutate(Scenario_label = paste(Scenario_ID, format(BaselinePop, big.mark = ","),"Starting Pop", sep=" "))  
+  
+  temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
+  
+  
+  # Plot the hours per week using geom_bar for each clinical category 
+  plot <- ggplot(temp_clin, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = Category)) +
+    geom_bar(stat = "identity", position = "dodge", alpha = 0.9) +
+    scale_fill_viridis_d() +  # Use Viridis color scale
+    facet_wrap(~ reorder(Category, -temp_clin$MeanHrs), scales = "free_y", nrow = 4)+ #this is for rows
+    theme(panel.spacing = unit(1, "pt"))+
+    labs(title = "Hours per Week by Clinical Category",
+         x = "Year", y = "Hours per Week per Catchment Pop") +
+    #theme_minimal() +  # Use minimal theme for clarity
+    cc_fillScale +  # Use the defined fill color scale
+    cc_colorScale +
+    theme(
+      legend.position = "none",  # Position legend at the bottom
+      legend.title = element_blank(),  # Remove legend title
+      legend.text = element_text(size=13, color="black"),  # Adjust legend text size and color
+      axis.text.x = element_text(angle=-90, vjust=0.5, hjust=1, size=13, color="black"),  # Dark black x-axis text
+      axis.text.y = element_text(size=13, color="black"),  # Dark black y-axis text
+      axis.title = element_text(size=14, face="bold", color="black"),  # Dark black axis titles
+      strip.text = element_text(size=13, face="bold", color="black"),  # Dark black facet labels
+      plot.title = element_text(size=16, face="bold", color="black")) # Dark black plot title
+  
+  
+  # Add trend line (smoothed line) to the plot
+  plot <- plot +
+    geom_smooth(aes(group = Category), method = "loess", se = FALSE, color = "black", size = 1)
+
+
+  
+  if(plotly){
+    ggplotly(plot)
+  } else{
+    plot
+  }
+}
+
+
+
 # -----------------pdf report---------------------
 get_pdf_report <- function(rv){
   # print to pdf
@@ -322,3 +468,5 @@ get_pdf_report <- function(rv){
   dev.off()
   return (filename)
 }
+
+

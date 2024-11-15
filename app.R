@@ -27,9 +27,10 @@ ui <- fluidPage(
 )
 
 server <- function(input, output,session){
+  print("start session")
   
   # close the app when session ends
-  session$onSessionEnded(function() {
+    session$onSessionEnded(function() {
     # delete all downloaded files on the server after session ended
     intermediate_files <- list.files(result_root, full.names = TRUE, pattern ="*.zip|*.pdf")
     for (file in intermediate_files) {
@@ -97,5 +98,5 @@ server <- function(input, output,session){
 }
 
 
-shinyApp(ui=ui, server=server)
+shinyApp(ui=ui, server=server, options = list(launch.browser = TRUE))
 
