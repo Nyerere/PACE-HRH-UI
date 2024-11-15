@@ -101,28 +101,28 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
   
   if(plotly){
     print("plotly")
-    p_plotly <- ggplotly(plot) %>%
-      layout(
-        margin = list(l = 50, r = 50, b = 100, t = 50) ,
-        yaxis2 = list(
-          title = "Logarithmic (y2)",
-          overlaying = "y",  # Overlay second y-axis
-          side = "right",     # Put y2 on the right
-          range = c(min(0) -5, maxyval+7)
-         # range = c(min(temp_clin$MeanHrs/temp_clin$WeeksPerYr), max(temp_clin$MeanHrs/temp_clin$WeeksPerYr)),
-        ),
-        legend = list(
-          x = 1.3,            # Move it to the right (beyond 1 moves it outside the plot area)
-          y = 1,              # Align it to the top
-          xanchor = "left",   # Position the legend box to the left of its x position
-          yanchor = "top"     # Position the legend box to the top of its y position
-        )
-      ) %>% 
-      add_trace(
-        x = temp_clin$Year, y = temp_clin$MeanHrs/temp_clin$WeeksPerYr,  # Dummy trace with no data
-        yaxis = "y2",       # Tie it to the second y-axis
-        showlegend = FALSE  # Hide the trace from the legend
-      )
+     p_plotly <- ggplotly(plot) #%>%
+    #   layout(
+    #     margin = list(l = 50, r = 50, b = 100, t = 50) ,
+    #     yaxis2 = list(
+    #       title = "Logarithmic (y2)",
+    #       overlaying = "y",  # Overlay second y-axis
+    #       side = "right",     # Put y2 on the right
+    #       range = c(min(0) -5, maxyval+7)
+    #      # range = c(min(temp_clin$MeanHrs/temp_clin$WeeksPerYr), max(temp_clin$MeanHrs/temp_clin$WeeksPerYr)),
+    #     ),
+    #     legend = list(
+    #       x = 1.3,            # Move it to the right (beyond 1 moves it outside the plot area)
+    #       y = 1,              # Align it to the top
+    #       xanchor = "left",   # Position the legend box to the left of its x position
+    #       yanchor = "top"     # Position the legend box to the top of its y position
+    #     )
+    #   ) %>% 
+    #   add_trace(
+    #     x = temp_clin$Year, y = temp_clin$MeanHrs/temp_clin$WeeksPerYr,  # Dummy trace with no data
+    #     yaxis = "y2",       # Tie it to the second y-axis
+    #     showlegend = FALSE  # Hide the trace from the legend
+    #   )
     p_plotly
   }
   else{
@@ -366,24 +366,27 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
                 method = "loess", se = FALSE, color = "black", size = 1) +
     #ylim(0, ymax) +
     facet_wrap(~reorder(ServiceCat, -filtered_data$MeanHrs), scales = "free_y", nrow =4) +  # Facet by reordered ServiceCat
-    theme(panel.spacing = unit(1, "pt"))+
     scale_x_continuous(breaks = c(2021, 2025, 2030, 2035)) +
     # scale_y_continuous(sec.axis = sec_axis(~ . / hrsperweek, name = "", breaks = NULL)) +  # Make secondary axis invisible
     sc_fillScale +  # Include the fill scale
     labs(
       x = "Year",
       y = "Hours per Week per Catchment Pop",
-      title = "Time Allocation by Service Categoryyy"
+      title = "Time Allocation by Service Category"
     ) +
     theme(
       legend.position = "",  # Position legend at the bottom
       legend.title = element_blank(),  # Remove legend title
       legend.text = element_text(size = 13),  # Adjust legend text size
-      axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1, size = 13),
-      axis.text.y = element_text(size = 13),  # Adjust axis text size
-      axis.title = element_text(size = 14, face = "bold"),
+      axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1, size = 10),
+      axis.text.y = element_text(size = 7),  # Adjust axis text size
+      axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),  # Add right margin to y-axis title
+      axis.title.x = element_text(size = 14, face = "bold"),
       strip.text = element_text(size = 13, face = "bold"),
-      plot.title = element_text(size = 16, face = "bold")
+      plot.title = element_text(size = 16, face = "bold", margin = margin(b = 5)),
+      panel.spacing.x = unit(0, "pt"),
+      panel.spacing.y = unit(2, "pt"),
+      plot.margin = margin(t = 10, r = 1, b = 1, l = 50, unit = "pt") 
     )
   
 
