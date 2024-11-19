@@ -59,20 +59,16 @@ viewRunsUI <- function(id) {
 
 # Server logic for the view runs module
 viewRunsServer <- function(id, rv, store) {
-  print("viewruns")
-  print(testvariable)
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     print("run simulation view_runs.R - moduleserver fn")
-    #print(rv$testvariable)
     # run once when loaded
     shinyjs::runjs(sprintf("get_test_names('%s', '%s')", ns("test_names_loaded"), ns("test_history")))
     
     selectedRows <- reactiveVal(c(TRUE))
     redraw <- reactiveVal(FALSE)
     rv_results <- reactiveValues()
-    rv_results$testvariable <- testvariable
-    #rv_results$sc_colours <- sc_colours
+
     download_filenames <- reactiveVal(NULL)
     pdf_filenames <- reactiveVal(NULL)
    
@@ -167,8 +163,7 @@ viewRunsServer <- function(id, rv, store) {
       selections <- selectedRows()
       selections[input$rowSelected$index + 1] <- input$rowSelected$selected
       selectedRows(selections)
-      print("rvtestvariable view_runs observeEvent rowSelected")
-      print(rv$testvariable)
+
       # only allow up to 4 comparison
       # if (sum(selections) > 4) {
       #   selections[input$rowSelected$index + 1] <- FALSE
@@ -284,7 +279,7 @@ viewRunsServer <- function(id, rv, store) {
     })
     
     observe ({
-        rv_results$testvariable = rv$testvariable
+
         if (rv$sim_refresh){
           print(paste0("rv$sim_refresh: ", rv$sim_refresh))
           shinyjs::runjs(sprintf("get_test_names('%s', '%s')", ns("test_names_loaded"), ns("test_history")))
