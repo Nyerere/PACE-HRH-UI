@@ -89,15 +89,20 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
     geom_errorbar(data =temp_total, aes(x=Year,ymin=CI05/WeeksPerYr, ymax=CI95/WeeksPerYr), colour="black", width=.3)+
     ylim(0,maxyval)+
     theme_bw()+
-    theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
+    theme(
+      axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), 
+      legend.title=element_blank(), 
+      strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm"))
+    )+
     labs(y=ylabel,x="")+
     cc_fillScale+
+    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40)))
    # scale_fill_viridis_d(option = "A")+
   #   scale_y_continuous(
   #   name = "Left Axis (y)",                                # Label for left axis
   #   sec.axis = sec_axis(~ . * 2, name = "Right Axis (y2)") # Secondary axis with reverse transformation
   # ) +
-    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40)))
+   
   
   if(plotly){
     print("plotly")
@@ -401,18 +406,36 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
 # -----------------individual clinical category plot---------------------
 individual_clinical_category_plot <- function(rv, plotly=FALSE){
   
-  temp_clin <- rv$Mean_ClinCat %>% 
-    filter(Year >= 2021 & Year <= 2040) %>% 
-    dplyr::mutate(Category = case_when(
+  # temp_clin <- rv$Mean_ClinCat %>% 
+  #   filter(Year >= 2021 & Year <= 2040) %>% 
+  #   dplyr::mutate(Category = case_when(
+  #     ClinicalOrNon != "Clinical" ~ ClinicalOrNon,
+  #     ClinicalOrNon == "Clinical" ~ paste("Clinical -", ClinicalCat))) %>% 
+  #   dplyr::mutate(Alpha = case_when(
+  #     ClinicalOrNon == "Clinical" ~ 0.3,
+  #     ClinicalOrNon != "Clinical" ~ 1)) %>% 
+  #   dplyr::mutate(Scenario_label = paste(Scenario_ID, format(BaselinePop, big.mark = ","),"Starting Pop", sep=" "))  
+  # 
+  # temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
+  StartYear <-  rv$start_year + 1
+  EndYear <-  rv$end_year 
+  temp_clin <- rv$Mean_ClinCat %>%
+    filter(Year >= StartYear & Year <= EndYear) %>% 
+    mutate(Category = case_when(
       ClinicalOrNon != "Clinical" ~ ClinicalOrNon,
-      ClinicalOrNon == "Clinical" ~ paste("Clinical -", ClinicalCat))) %>% 
-    dplyr::mutate(Alpha = case_when(
+      ClinicalOrNon == "Clinical" ~ paste("Clinical -", ClinicalCat))) %>%
+    mutate(Alpha = case_when(
       ClinicalOrNon == "Clinical" ~ 0.3,
-      ClinicalOrNon != "Clinical" ~ 1)) %>% 
-    dplyr::mutate(Scenario_label = paste(Scenario_ID, format(BaselinePop, big.mark = ","),"Starting Pop", sep=" "))  
-  
+      ClinicalOrNon != "Clinical" ~ 1)) %>%
+    mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep=""))
   temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
   
+  temp_total <- rv$Mean_Total %>%
+    filter(Year >= StartYear & Year <= EndYear) %>% 
+    mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep=""))
+  
+  ylabel <- "Hours per Week for Catchment Pop"
+  maxyval <- max(rv$Mean_Total$CI95/rv$Mean_Total$WeeksPerYr)*1.05
   
   # Plot the hours per week using geom_bar for each clinical category 
   plot <- ggplot(temp_clin, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = Category)) +

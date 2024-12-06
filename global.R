@@ -7,6 +7,7 @@ library(tidyr)
 
 
 
+
 options(devtools.upgrade = "never")
 
 # parse DESCRIPTION file
@@ -22,7 +23,7 @@ our_license_link <- project_info[["OurLicenseLink"]][["value"]]
 
 
 # download sample config
-global_config_file <- "config/model_inputs_demo.xlsx"
+global_config_file <- "config/master_input_sheet.xlsx"
 if (!file.exists(global_config_file)){
   print("download sample config...")
   config_url <- "https://raw.githubusercontent.com/InstituteforDiseaseModeling/PACE-HRH/main/config/model_inputs_demo.xlsx"
@@ -60,7 +61,7 @@ region_config_files <- lapply(region_dirs, function(x) {
   return(f)
 })
 names(region_config_files) <- basename(region_dirs)
-region_config_files[["ethiopia"]] <- global_config_file
+#region_config_files[["ethiopia"]] <- global_config_file
 
 result_root <- "pace_results"
 show_log <- FALSE
