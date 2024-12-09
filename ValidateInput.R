@@ -39,6 +39,7 @@ colnames(custom_test$df_reason) <- c("name", "description", "severity")
 Validate <- function(inputFile, outputDir, optional_sheets = NULL){
   
   # Make sure outputDir is empty
+  cat("ValidateInput.R: Make sure outputDir is empty\n")
   tryCatch(
     {
       unlink(outputDir,recursive=TRUE)
@@ -61,7 +62,7 @@ Validate <- function(inputFile, outputDir, optional_sheets = NULL){
 ValidateInputExcelFileContent <- function(inputFile,
                                           outputDir,
                                           optional_sheets = NULL){
-  
+  cat("ValidateInputExcelFileContent: Start\n")
   logfile <- file.path(outputDir, .errorLogfile)
   print(logfile)
   lf <- log_open(file_name = logfile, show_notes = FALSE)

@@ -99,6 +99,8 @@ sim_tabs <- function(ns){
                            hidden(div(id="sim_logger_area",loggerUI("logger"))),
                            hidden(actionButton(ns("close_sim_log"), "Close Log Window", width = "200px", style = "display: block; margin: 0 auto; position: relative; bottom: 30px;")))
                     ),
+           
+  
   ),
 )}
 
@@ -208,7 +210,6 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
         rv$pop_input <- read_excel(rv$input_file, sheet = "TotalPop")
         rv$pop_values <- read_excel(rv$input_file, sheet = rv$scenarios_input$sheet_PopValues)
         rv$cadreroles <- read_excel(rv$input_file, sheet="CadreRoles")
-    
       }
    
       if(sim_pages[rv$page]=="Configuration"){
@@ -253,15 +254,15 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
       print(paste("rv$input_file:", rv$input_file))
  
     
-      rv$scenarios_input <- first(read.xlsx(rv$input_file, sheet = rv$scenarios_sheet))
+      rv$scenarios_input <- first(read_excel(rv$input_file, sheet = rv$scenarios_sheet))
       print(paste("Scenarios sheet name:", rv$scenarios_sheet))
       print("Debug: Scenarios sheet values")
       print(rv$scenarios_input)
       print(rv$scenarios_input$"sheet_TaskValues")
       # reload optional data
-      rv$task_input <- read.xlsx(rv$input_file, sheet = rv$task_sheet)
-      rv$seasonality_input <- read.xlsx(rv$input_file, sheet = rv$seasonality_sheet)
-      rv$pop_input <- read.xlsx(rv$input_file, sheet = "TotalPop")
+      rv$task_input <- read_excel(rv$input_file, sheet = rv$task_sheet)
+      rv$seasonality_input <- read_excel(rv$input_file, sheet = rv$seasonality_sheet)
+      rv$pop_input <- read_excel(rv$input_file, sheet = "TotalPop")
       updateNumericInput(session, "catchment_pop",
                           value = rv$scenarios_input$BaselinePop)
       updateNumericInput(session, "hrs_wk",
