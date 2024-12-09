@@ -2,5 +2,5 @@
 .Rhistory
 .RData
 .Ruserdat
-.DS_Store
+*.DS_Store
 out.csv
