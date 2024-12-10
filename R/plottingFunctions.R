@@ -73,7 +73,16 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
       ClinicalOrNon == "Clinical" ~ 0.3,
       ClinicalOrNon != "Clinical" ~ 1)) %>%
     mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep=""))
-  temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
+  
+  # Calculate total hours for each Category
+  total_hours <- temp_clin %>%
+    group_by(Category) %>%
+    summarize(TotalHrs = sum(MeanHrs))
+
+  # Reorder Category based on total hours
+  temp_clin$Category <- factor(temp_clin$Category, levels = total_hours$Category[order(total_hours$TotalHrs, decreasing = FALSE)])
+
+  #temp_clin$Category <- factor(temp_clin$Category, ordered=TRUE, levels=unique(temp_clin$Category))
   
   temp_total <- rv$Mean_Total %>%
     filter(Year >= StartYear & Year <= EndYear) %>% 
@@ -149,6 +158,15 @@ byServiceCat_plot <- function(rv, plotly=TRUE){
     group_by(Scenario_label, Year) %>%
     dplyr::mutate(TotalHrs=sum(MeanHrs)) 
   
+  # Calculate total hours for each ServiceCat
+  total_hours <- ServiceCat_Clinical %>%
+    group_by(ServiceCat) %>%
+    summarize(TotalHrs = sum(MeanHrs))
+
+  # Reorder ServiceCat based on total hours
+  ServiceCat_Clinical$ServiceCat <- factor(ServiceCat_Clinical$ServiceCat, levels = total_hours$ServiceCat[order(total_hours$TotalHrs, decreasing = FALSE)])
+
+
   temp_TotClin <- rv$Stats_TotClin %>% 
     filter(Year >= StartYear & Year <= EndYear) %>% 
     dplyr::mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep=""))
