@@ -4,3 +4,5 @@
 .Ruserdat
 *.DS_Store
 out.csv
+config/master_input_sheet_*
+pace_results/*

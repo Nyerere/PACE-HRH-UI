@@ -27,8 +27,8 @@ sim_tabs <- function(ns){
                     bsPopover(ns("info_end_year"), "End year for simulation", placement = "top", options = list(container = "body")),
              ),
              column(6,
-                    numericInput(ns("hrs_wk"), div(id = ns("info_hrs_wk"), "Hours worked per week ",  bs_icon("question-circle")), 40, min=1, max = 60),
-                    bsPopover(ns("info_hrs_wk"), "Working hours of Week, usually under 40 Hrs", placement = "top", options = list(container = "body")),
+                    numericInput(ns("hrs_wk"), div(id = ns("info_hrs_wk"), "Target hours worked per week ",  bs_icon("question-circle")), 40, min=1, max = 60),
+                    bsPopover(ns("info_hrs_wk"), "Target for working hours of Week, usually under 40 Hrs", placement = "top", options = list(container = "body")),
              )
              
            ),
@@ -268,7 +268,7 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
       updateNumericInput(session, "hrs_wk",
                           value = rv$scenarios_input$HrsPerWeek)
       updateNumericInput(session, "hrh_utilization",
-                          value = rv$scenarios_input$MaxUtilization)
+                          value = rv$scenarios_input$MaxUtilization*100)
     })
     
     observeEvent(input$cancelRegionBtn, {

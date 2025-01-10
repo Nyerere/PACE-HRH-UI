@@ -40,6 +40,8 @@ viewRunsUI <- function(id) {
                     title = "By Clinical Category"),
           plotTabUI(id = ns("by-CadreRoles-tab"),
                     title = "By Cadre Roles"),
+          plotTabUI(id = ns("by-CadreFTE-tab"),
+                    title = "By Cadre FTE"),
           plotTabUI(id = ns("by-ServiceCat-tab"),
                     title = "By Service Category"),
           plotTabUI(id = ns("by-ServiceTile-tab"),
@@ -299,6 +301,11 @@ viewRunsServer <- function(id, rv, store) {
             plotTabServer(
               id = "by-CadreRoles-tab",
               plotting_function = "byCadreRoles_plot",
+              rv = rv_results)
+
+            plotTabServer(
+              id = "by-CadreFTE-tab",
+              plotting_function = "byCadreFTE_plot",
               rv = rv_results)
             
             plotTabServer(

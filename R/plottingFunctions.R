@@ -218,7 +218,7 @@ byCadreRoles_plot <-  function(rv, plotly=TRUE){
           legend.key.size=unit(0.3, 'cm'), legend.direction="vertical", legend.background = element_rect(fill = 'transparent'))+
     scale_fill_brewer(palette = "Paired", direction = -1)+
     facet_wrap(~test_name)+
-    labs(x="Year", y="Hours per Week per 5,000 Pop", fill = "Cadre")
+    labs(x="Year", y="Hours per Week per Catchment", fill = "Cadre")
   print(plot)
   
   
@@ -228,6 +228,40 @@ byCadreRoles_plot <-  function(rv, plotly=TRUE){
     plot
   }
   
+}
+
+# -----------------by CadreFTE plot---------------------
+byCadreFTE_plot <- function(rv, plotly=FALSE){
+  StartYear <-  rv$start_year + 1 
+  EndYear <-  rv$end_year 
+  
+  Cadre_labelled <- rv$Mean_Alloc %>% 
+    filter(CI50!=0 ) %>% 
+    group_by(test_name, Year) %>% 
+    dplyr::mutate(sum_CI50 = sum(CI50), sum_CI05 = sum(CI05), sum_CI95 = sum(CI95)) 
+
+print(Cadre_labelled)
+  ymax = max(ceiling(Cadre_labelled$CI50/Cadre_labelled$WeeksPerYr/(Cadre_labelled$HrsPerWeek*Cadre_labelled$MaxUtilization))) + 1
+  #Cadre_labelled$ScenarioLabel = paste(Cadre_labelled$Scenario_ID,":", Cadre_labelled$MaxUtilization, "MaxUtil")
+  #unique(Cadre_labelled$ScenarioLabel)
+
+  plot <-ggplot(data=Cadre_labelled)+
+  geom_bar(aes(x=Year,y=ceiling(CI50/WeeksPerYr/(HrsPerWeek*MaxUtilization)),fill=RoleDescription),stat="identity")+
+  theme_bw()+
+  scale_x_continuous(breaks = c(2021,2025,2030,2035))+
+  ylim(0,ymax)+
+  facet_grid(RoleDescription ~ .)+
+  labs(x="Year",y="Minimum staff count",fill="Cadre",title="Minimum staff count by cadre")+
+  theme(
+    #strip.background = element_blank(),
+    strip.text.y = element_blank()
+  )
+
+  if(plotly){
+    ggplotly(plot)
+  } else{
+    plot
+  }
 }
 
 # -----------------by ServiceCat tile plot---------------------

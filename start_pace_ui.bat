@@ -1,7 +1,7 @@
 cls
 setlocal
 @echo off
-SET VERSION=2.0.0
+SET VERSION=v2.0.3
 
 REM Determine if this a git repository
 IF EXIST ".git" (
@@ -88,7 +88,8 @@ if not "%VERSION_INPUT%"=="" (
     set "VERSION=%VERSION_INPUT%"
 )
 
-SET CODE_URL=https://github.com/InstituteforDiseaseModeling/PACE-HRH-UI/archive/refs/tags/%VERSION%.zip
+REM SET CODE_URL=https://github.com/InstituteforDiseaseModeling/PACE-HRH-UI/archive/refs/tags/%VERSION%.zip
+SET CODE_URL=https://github.com/vitalwaveinc/PACE-HRH-UI/archive/refs/tags/%VERSION%.zip
 SET DOWNLOAD_PATH="%root_dir%\pace-hrh-ui.zip"
 
 
