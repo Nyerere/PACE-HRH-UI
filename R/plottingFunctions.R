@@ -105,7 +105,7 @@ get_slide_4_plot <- function(rv, plotly=TRUE){
     )+
     labs(y=ylabel,x="")+
     cc_fillScale+
-    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40)))
+    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(80)))
    # scale_fill_viridis_d(option = "A")+
   #   scale_y_continuous(
   #   name = "Left Axis (y)",                                # Label for left axis
@@ -180,7 +180,7 @@ byServiceCat_plot <- function(rv, plotly=TRUE){
     geom_point(data=temp_TotClin,aes(x=Year,y=CI50/WeeksPerYr))+
     geom_errorbar(data=temp_TotClin,aes(x=Year,ymin=CI05/WeeksPerYr, ymax=CI95/WeeksPerYr), colour="black", width=.3)+
     ylim(0, ymax) +
-    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40))) +
+    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(80))) +
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1))+
     theme(legend.position = c(0.02, 1), legend.justification = c(0.02, 1), legend.key.size=unit(0.3, 'cm'), legend.direction="vertical", legend.background = element_rect(fill = 'transparent'))+
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
@@ -240,21 +240,31 @@ byCadreFTE_plot <- function(rv, plotly=FALSE){
     group_by(test_name, Year) %>% 
     dplyr::mutate(sum_CI50 = sum(CI50), sum_CI05 = sum(CI05), sum_CI95 = sum(CI95)) 
 
-print(Cadre_labelled)
-  ymax = max(ceiling(Cadre_labelled$CI50/Cadre_labelled$WeeksPerYr/(Cadre_labelled$HrsPerWeek*Cadre_labelled$MaxUtilization))) + 1
-  #Cadre_labelled$ScenarioLabel = paste(Cadre_labelled$Scenario_ID,":", Cadre_labelled$MaxUtilization, "MaxUtil")
-  #unique(Cadre_labelled$ScenarioLabel)
+ma <- rv$Mean_Alloc
 
-  plot <-ggplot(data=Cadre_labelled)+
+ymax = max(ceiling(Cadre_labelled$CI50/Cadre_labelled$WeeksPerYr/(Cadre_labelled$HrsPerWeek*Cadre_labelled$MaxUtilization))) + 1
+#Cadre_labelled$ScenarioLabel = paste(Cadre_labelled$Scenario_ID,":", Cadre_labelled$MaxUtilization, "MaxUtil")
+#unique(Cadre_labelled$ScenarioLabel)
+
+plot <-ggplot(data=Cadre_labelled)+
   geom_bar(aes(x=Year,y=ceiling(CI50/WeeksPerYr/(HrsPerWeek*MaxUtilization)),fill=RoleDescription),stat="identity")+
   theme_bw()+
   scale_x_continuous(breaks = c(2021,2025,2030,2035))+
   ylim(0,ymax)+
   facet_grid(RoleDescription ~ .)+
-  labs(x="Year",y="Minimum staff count",fill="Cadre",title="Minimum staff count by cadre")+
+  labs(x="Year",y="Minimum staff count",fill="Cadre",title=paste("Minimum staff count by cadre - ",ma$test_name[1]))+
   theme(
     #strip.background = element_blank(),
-    strip.text.y = element_blank()
+    strip.text.y = element_blank(),
+    plot.title = element_text(
+      hjust = 0,  # Left align
+      size = 16,
+      margin = margin(b = 10)),  # Add some bottom margin
+    plot.title.background = element_rect(
+      fill = "#B3B3B3",  # Light grey background
+      color = "#B3B3B3",  # Border color
+      linewidth = 1
+    )
   )
 
   if(plotly){
@@ -307,7 +317,7 @@ byServiceTile_plot <- function(rv, plotly=TRUE){
     #scale_fill_viridis_d()+
     sc_fillScale +
     geom_text(aes(label=paste(round(MeanHrs/Denominator*100,0),sep="")), position = position_fill(vjust = 0.5))+
-    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40))) +
+    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(80))) +
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
     xlab("")+ylab("% of workload by type")+
     labs(fill="Service")+
@@ -344,7 +354,7 @@ serviceOverTime_plot <- function(rv, plotly=TRUE){
     theme_bw() +
     sc_colorScale+
     geom_text(data=subset(ServiceCat_Clinical,Year==max(ServiceCat_Clinical$Year))) +
-    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(40))) +
+    facet_wrap(~Scenario_label,labeller=labeller(Scenario_label=label_wrap_gen(80))) +
     theme(axis.text.x = element_text(angle=-90, vjust = .5, hjust=1), legend.title=element_blank(), strip.text = element_text(size=12,margin=margin(1,1,1,1,"cm")))+
     labs(x = "", y = "Ratio of Workload vs. Baseline Year")
   
@@ -403,6 +413,7 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
   StartYear <-  rv$start_year + 1 
   EndYear <-  rv$end_year 
   
+  sc <- rv$Mean_ServiceCat
   ServiceCat_Clinical <- rv$Mean_ServiceCat %>%
     subset(ClinicalOrNon=="Clinical") %>%
     filter(Year >= StartYear & Year <= EndYear) %>% 
@@ -422,14 +433,14 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
                 aes(x = Year, y = MeanHrs/WeeksPerYr, group = ServiceCat),
                 method = "loess", se = FALSE, color = "black", size = 1) +
     #ylim(0, ymax) +
-    facet_wrap(~reorder(ServiceCat, -filtered_data$MeanHrs), scales = "free_y", nrow =4) +  # Facet by reordered ServiceCat
+    facet_wrap(~reorder(ServiceCat, -filtered_data$MeanHrs), scales = "free_y", nrow =5) +  # Facet by reordered ServiceCat
     scale_x_continuous(breaks = c(2021, 2025, 2030, 2035)) +
     # scale_y_continuous(sec.axis = sec_axis(~ . / hrsperweek, name = "", breaks = NULL)) +  # Make secondary axis invisible
     sc_fillScale +  # Include the fill scale
     labs(
       x = "Year",
       y = "Hours per Week per Catchment Pop",
-      title = "Time Allocation by Service Category"
+      title = paste("Time Allocation by Service Category -",sc$test_name[1])
     ) +
     theme(
       legend.position = "",  # Position legend at the bottom
@@ -440,9 +451,9 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
       axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),  # Add right margin to y-axis title
       axis.title.x = element_text(size = 14, face = "bold"),
       strip.text = element_text(size = 13, face = "bold"),
-      plot.title = element_text(size = 16, face = "bold", margin = margin(b = 5)),
+      plot.title = element_text(size = 14, face = "bold", margin = margin(b = 10)),
       panel.spacing.x = unit(0, "pt"),
-      panel.spacing.y = unit(2, "pt"),
+      panel.spacing.y = unit(0, "pt"),
       plot.margin = margin(t = 10, r = 1, b = 1, l = 50, unit = "pt") 
     )
   
@@ -469,6 +480,9 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
   #   dplyr::mutate(Scenario_label = paste(Scenario_ID, format(BaselinePop, big.mark = ","),"Starting Pop", sep=" "))  
   # 
   # temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
+
+  mc <- rv$Mean_ClinCat
+
   StartYear <-  rv$start_year + 1
   EndYear <-  rv$end_year 
   temp_clin <- rv$Mean_ClinCat %>%
@@ -495,7 +509,7 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
     scale_fill_viridis_d() +  # Use Viridis color scale
     facet_wrap(~ reorder(Category, -temp_clin$MeanHrs), scales = "free_y", nrow = 4)+ #this is for rows
     theme(panel.spacing = unit(1, "pt"))+
-    labs(title = "Hours per Week by Clinical Category",
+    labs(title = paste("Hours per Week by Clinical Category -", mc$test_name[1]),
          x = "Year", y = "Hours per Week per Catchment Pop") +
     #theme_minimal() +  # Use minimal theme for clarity
     cc_fillScale +  # Use the defined fill color scale
@@ -508,7 +522,7 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
       axis.text.y = element_text(size=13, color="black"),  # Dark black y-axis text
       axis.title = element_text(size=14, face="bold", color="black"),  # Dark black axis titles
       strip.text = element_text(size=13, face="bold", color="black"),  # Dark black facet labels
-      plot.title = element_text(size=16, face="bold", color="black")) # Dark black plot title
+      plot.title = element_text(size=14, face="bold", color="black", margin=margin(b=10))) # Dark black plot title
   
   
   # Add trend line (smoothed line) to the plot

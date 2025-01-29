@@ -20,7 +20,7 @@ ui <- fluidPage(
                   tags$title({project_title})
                   #--------------------------
                 ),
-                #Home and About page UI components are 
+                #Home and About page UI   components are 
                 #imported in headerUI component
                 headerUI("header"),
                 footerUI("footer"),

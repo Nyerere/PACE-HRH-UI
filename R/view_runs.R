@@ -38,22 +38,26 @@ viewRunsUI <- function(id) {
           # --------Insert tabs UI calls here, comma separated --------
           plotTabUI(id = ns("slide-4-tab"),
                     title = "By Clinical Category"),
+          plotTabUI(id = ns("individual-clinicalcat-tab"),
+                    title = "Individual Clinical Category Plots"),
+          plotTabUI(id = ns("by-ServiceCat-tab"),
+                    title = "By Service Category"),
+          plotTabUI(id = ns("individual-servicecat-tab"),
+                    title = "Individual Service Category Plots"),
+          
           plotTabUI(id = ns("by-CadreRoles-tab"),
                     title = "By Cadre Roles"),
           plotTabUI(id = ns("by-CadreFTE-tab"),
                     title = "By Cadre FTE"),
-          plotTabUI(id = ns("by-ServiceCat-tab"),
-                    title = "By Service Category"),
-          plotTabUI(id = ns("by-ServiceTile-tab"),
-                    title = "By Service Category Tiles"),
+         
+         # plotTabUI(id = ns("by-ServiceTile-tab"),
+         #           title = "By Service Category Tiles"),
           plotTabUI(id = ns("service-over-time-tab"),
-                    title = "Service change over time"),
+                    title = "Service Change Over Time"),
           plotTabUI(id = ns("seasonality-tab"),
                     title = "Seasonality"),
-          plotTabUI(id = ns("individual-servicecat-tab"),
-                     title = "Individual Service Category Plots"),
-          plotTabUI(id = ns("individual-clinicalcat-tab"),
-                    title = "Individual Clinical Category Plots"),
+          
+          
         ),
       )
   )

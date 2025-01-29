@@ -15,7 +15,6 @@ regions <- read.xlsx(wb, sheet = lookup_sheet, cols = 21:21, rows = 2:20)    # A
 # Remove any NA values
 scenarios <- scenarios[!is.na(scenarios)]
 regions <- regions[!is.na(regions)]
-
 # Get the target worksheet for modifications
 region_target_sheet <- "RegionSelect"
 scenario_target_sheet <- "Scenarios"

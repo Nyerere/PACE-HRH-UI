@@ -6,3 +6,4 @@
 out.csv
 config/master_input_sheet_*
 pace_results/*
+config/region/*
