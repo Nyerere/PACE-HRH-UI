@@ -63,6 +63,7 @@ server <- function(input, output,session){
   
   firstLoad <- reactiveVal(TRUE)
   observe({
+    print(paste("input store", input$store))
     if(isolate(firstLoad())) {
       # display greeting on first load
       shinyjs::runjs(sprintf("check_greeting('%s')", "greeting_already_shown"))
@@ -79,12 +80,18 @@ server <- function(input, output,session){
     shinyjs::runjs('let r = (Math.random() + 1).toString(36).substring(7); localStorage.setItem("uid", r);')
   })
   
+  
+  observeEvent(input$tabs, {
+    print(paste("Switched to:", input$tabs))
+  })
+  
   observeEvent(input$greeting_already_shown, {
     if (! grepl("shown", input$greeting_already_shown, fixed=TRUE)){
       message("showing greeting modal")
       greetingModal()
     }
   })
+
   #---------------------------------------------------
   # We need to pass store to modules that require local storage
   store <- reactive({

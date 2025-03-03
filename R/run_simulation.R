@@ -141,10 +141,15 @@ runSimulationUI <- function(id) {
 }
 
 runSimulationServer <- function(id, return_event, rv, store = NULL) {
-  
+
   moduleServer(id, function(input, output, session) {
+    
+    
+    print("run simulation server")
     ns <- session$ns
     rv$current_region <- names(region_config_files)[length(names(region_config_files))]
+    isolate(updateSelectInput(session, "region", selected = "Select Region"))
+    
     # function to trigger config file saving before simulation
     trigger_file_saving <- function(ns){
       js_code = sprintf("Shiny.setInputValue('%s', 'starting', {priority: 'event'});" ,ns("saving"))
@@ -201,6 +206,8 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
     
     # Set sheet data based on input scenario
     observe({
+      #if this is a new context i.e. no uid set
+      print("in run simulation observe")
       if (!is.null(rv$uid)) {
         rv$scenario_selected <- rv$scenarios_input$UniqueID
         rv$seasonality_sheet <- rv$scenarios_input$sheet_SeasonalityCurves
@@ -211,23 +218,45 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
         rv$pop_values <- read_excel(rv$input_file, sheet = rv$scenarios_input$sheet_PopValues)
         rv$cadreroles <- read_excel(rv$input_file, sheet="CadreRoles")
       }
+  
    
       if(sim_pages[rv$page]=="Configuration"){
+        print("line 224 show region")
         if(!rv$show_region){
           isolate(updateSelectInput(session, "region", label = "Region (Unavailable)"))
           shinyjs::hide("region")
         }
         else{
           isolate(updateSelectInput(session, "region", label = "Region"))
+          if(rv$sim_refresh==TRUE){
+            isolate(updateSelectInput(session, "region", selected = names(region_config_files)[length(names(region_config_files))]))
+          }
           shinyjs::show("region")
         }
       }
     })
     
-    
+    observeEvent(rv$sim_refresh, {
+      print("refresh!!!")
+      isolate(updateSelectInput(session, "region", selected = "Select Region"))
+      shinyjs::disable("optional_params")
+      print(sim_pages)
+      updateTabsetPanel(inputId = "simulation_steps", selected = sim_pages[1])
+    })
+    observeEvent(rv$page, {
+      #if(rv$page=="refresh") {
+        #rv$page <- which(sim_pages == "Configuration")
+        #updateTabsetPanel(inputId = "simulation_steps", selected = sim_pages[rv$page])
+      #}
+    })
+    observeEvent(rv$show_region, {
+      if(rv$show_region) {
+        shinyjs::show("region")
+        }
+    })
     # Reload optional data when region changes
     observeEvent(input$region, {
-      if (!is.null(input$region) &&  input$region != "" &&  input$region!=rv$current_region){
+      if (!is.null(input$region) &&  input$region != "" &&  input$region!=rv$current_region && input$region!="Select Region" ){
         # show warning
         showModal(
           modalDialog(
@@ -239,11 +268,14 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
             )
           )
         )
+        #enable other inputs if a region is selected
+        enable(input$optional_params)
       }
     })
     
     observeEvent(input$proceedRegionBtn, {
       removeModal()
+      shinyjs::enable("optional_params")
       print("proceedRegionButton clicked")
       rv$current_region <- input$region
       print(paste("Current Region:", rv$current_region))
@@ -270,6 +302,16 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
       updateNumericInput(session, "hrh_utilization",
                           value = rv$scenarios_input$MaxUtilization*100)
     })
+    
+    observeEvent(rv$scenarios_input, {
+      updateNumericInput(session, "catchment_pop",
+                         value = rv$scenarios_input$BaselinePop)
+      updateNumericInput(session, "hrs_wk",
+                         value = rv$scenarios_input$HrsPerWeek)
+      updateNumericInput(session, "hrh_utilization",
+                         value = rv$scenarios_input$MaxUtilization*100)
+    })
+   
     
     observeEvent(input$cancelRegionBtn, {
       removeModal()
@@ -314,10 +356,13 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
       }
       else if(restart){
         rv$page <- which(sim_pages == "Configuration")
+        isolate(updateSelectInput(session, "region", selected = "Select Region"))
       }
       else{
         rv$page <- rv$page + direction
       }
+      print(paste("rv$page:",rv$page  ))
+      print(paste("length(sim_pages):",length(sim_pages) ))
       if (rv$page >0 & rv$page <= length(sim_pages)){
         print(paste0("Select ", sim_pages[rv$page]))
         updateTabsetPanel(inputId = "simulation_steps", selected = sim_pages[rv$page])
@@ -350,7 +395,32 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
     }
     
     observeEvent(input$prevBtn, navPage(-1))
+    
+    observeEvent(input$OKBtn, {
+      removeModal()
+    
+    })
+    
+    #if the current tab is Run Simulation then set sim_refresh = TRUE (assume this is used in first tab to reset the simulation)
     observeEvent(input$nextBtn, {
+      print(sim_pages)
+      print(rv$page)
+      print(rv$region)
+      print(rv$input_file)
+      print("x")
+      if((input$region == "Select Region")&&(rv$show_region==TRUE)) {
+        showModal(
+          modalDialog(
+            title = "No Region Selected",
+            "Please select a region from the dropdown to continue",
+            footer = tagList(
+              actionButton(ns("OKBtn"), "OK"),
+              
+            )
+          )
+        )
+      }
+      else {
       save_values()
       if (rv$page >= which(sim_pages == "Run Simulation")) {
         return_event(TRUE)
@@ -360,11 +430,26 @@ runSimulationServer <- function(id, return_event, rv, store = NULL) {
       else{
         navPage(1)
       }
+      }
     })
     
     observeEvent(input$skipBtn, {
-      save_values()
-      navPage(0, sim=TRUE)
+      if((rv$page == which(sim_pages == "Configuration"))&&(input$region == "Select Region")&&(rv$show_region==TRUE)) {
+        showModal(
+          modalDialog(
+            title = "No Region Selected",
+            "Please select a region from the dropdown to continue",
+            footer = tagList(
+              actionButton(ns("OKBtn"), "OK"),
+              
+            )
+          )
+        )
+      }
+      else {
+        save_values()
+        navPage(0, sim=TRUE)
+      }
     })
     
     ### handle optional parameters

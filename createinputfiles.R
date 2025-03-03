@@ -10,8 +10,8 @@ wb <- loadWorkbook("config/master_input_sheet.xlsx")
 lookup_sheet <- "Lookup"
 scenarios <- read.xlsx(wb, sheet = lookup_sheet, cols = 14:14, rows = 1:20)  # Adjust rows as needed
 scenarios
-regions <- read.xlsx(wb, sheet = lookup_sheet, cols = 21:21, rows = 2:20)    # Adjust rows as needed
-
+regions <- read.xlsx(wb, sheet = lookup_sheet, cols = 21:21, rows = 1:20)    # Adjust rows as needed
+regions
 # Remove any NA values
 scenarios <- scenarios[!is.na(scenarios)]
 regions <- regions[!is.na(regions)]

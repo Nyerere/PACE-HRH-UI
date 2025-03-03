@@ -36,6 +36,9 @@ headerUI <- function(id) {
           tags$br(),
           tags$br(),
           actionButton(ns("view_runs"), "View previous runs", class='menuButton'),
+          tags$br(),
+          tags$br(),
+          hidden(actionButton(ns("cancel_home"), "Cancel" , class="menuButton"))
         ))
     ),
     navbarMenu("Options",
@@ -69,7 +72,8 @@ headerServer <- function(id, store=NULL) {
                        scenarios_sheet = "Scenarios",
                        folder_df = NULL,
                        selected_config_path = NULL,
-                       sim_refresh =TRUE
+                      
+                        sim_refresh =TRUE
   )
  
   moduleServer(id, function(input, output, session) {
@@ -77,7 +81,7 @@ headerServer <- function(id, store=NULL) {
     
     # set uid to reactiveValues
     shinyjs::runjs(sprintf("set_shiny_uid('%s')", ns("uid")))
-    
+    #shinyjs::hide('cancel_home')
     observeEvent(input$uid, {
       # create a inputfile for the current user based on uid
       rv$input_file <-  reload_config(input$uid) 
@@ -95,15 +99,23 @@ headerServer <- function(id, store=NULL) {
     })
     
     # navbarPage functions
+    observeEvent(input$cancel_home, {
+      updateNavbarPage(session, inputId = "header_options", selected = "Run Simulation" )
+      print("cancel")
+    })
+    
     observeEvent(input$run_simulation, {
-      
+     
       rv$input_file <-  reload_config(input$uid)
       rv$scenarios_input <- first(read_excel(rv$input_file, sheet = rv$scenarios_sheet))
       rv$show_region <- TRUE
+      rv$sim_refresh <- TRUE
       updateNavbarPage(session, inputId = "header_options", selected = "Run Simulation" )
+      #rv$page <- "restart"
       # set up user config file 
-      
+      shinyjs::show('cancel_home')
     })
+    
     
     observeEvent(input$run_name_checked, {
      
@@ -154,7 +166,8 @@ headerServer <- function(id, store=NULL) {
     observeEvent(input$run_previous_config, {
       # check test names from local storage
       shinyjs::runjs(sprintf("get_test_names('%s', '%s', '%s')", ns("prev_run_names"), ns("prev_run_details"), ns("run_name_checked")))
-    })
+      shinyjs::show('cancel_home')
+      })
     
     # Store the selected config file path
     observeEvent(input$dt_select_prev_config_rows_selected, {
@@ -168,11 +181,19 @@ headerServer <- function(id, store=NULL) {
     # Handle the previously used config scenario 
     observeEvent(input$proceedPrevConfigBtn, {
       removeModal()
+      shinyjs::show('cancel_home')
       if (!is.null(rv$selected_config_path())){
         rv$input_file <- reload_config(input$uid, rv$selected_config_path())
+        
         rv$scenarios_input <- first(read_excel(rv$input_file, sheet = rv$scenarios_sheet))
         rv$show_region <- FALSE
         updateNavbarPage(session, inputId = "header_options", selected = "Run Simulation" )
+        
+        rv$task_input <- read_excel(rv$input_file, sheet = rv$task_sheet)
+        rv$seasonality_input <- read_excel(rv$input_file, sheet = rv$seasonality_sheet)
+        rv$pop_input <- read_excel(rv$input_file, sheet = "TotalPop")
+        
+        
       }
     })
     

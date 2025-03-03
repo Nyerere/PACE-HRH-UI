@@ -61,6 +61,7 @@ region_config_files <- lapply(region_dirs, function(x) {
   return(f)
 })
 names(region_config_files) <- basename(region_dirs)
+region_config_files[["Select Region"]] <- "no.xls"
 #region_config_files[["ethiopia"]] <- global_config_file
 
 result_root <- "pace_results"
