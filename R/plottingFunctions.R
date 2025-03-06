@@ -231,14 +231,22 @@ byCadreRoles_plot <-  function(rv, plotly=TRUE){
 }
 
 # -----------------by CadreFTE plot---------------------
-byCadreFTE_plot <- function(rv, plotly=FALSE){
+byCadreFTE_plot <- function(rv, plotly=TRUE){
   StartYear <-  rv$start_year + 1 
   EndYear <-  rv$end_year 
-  
-  Cadre_labelled <- rv$Mean_Alloc %>% 
+  write.csv(rv$Mean_Alloc , "Mean_Alloc.csv", row.names = FALSE)
+  print(str(rv$Mean_Alloc))
+  prev <- rv$Mean_Alloc %>% 
+  mutate(
+      test_name = as.factor(test_name),
+      RoleDescription = as.factor(RoleDescription)
+    )
+  write.csv(prev, "prev.csv", row.names = FALSE)
+  print(str(prev))
+  Cadre_labelled <- prev %>% 
     filter(CI50!=0 ) %>% 
     group_by(test_name, Year) %>% 
-    dplyr::mutate(sum_CI50 = sum(CI50), sum_CI05 = sum(CI05), sum_CI95 = sum(CI95)) 
+    dplyr::mutate(sum_CI50 = sum(CI50), sum_CI05 = sum(CI05), sum_CI95 = sum(CI95))  
 
 ma <- rv$Mean_Alloc
 
@@ -246,16 +254,19 @@ ymax = max(ceiling(Cadre_labelled$CI50/Cadre_labelled$WeeksPerYr/(Cadre_labelled
 #Cadre_labelled$ScenarioLabel = paste(Cadre_labelled$Scenario_ID,":", Cadre_labelled$MaxUtilization, "MaxUtil")
 #unique(Cadre_labelled$ScenarioLabel)
 
+write.csv(Cadre_labelled, "Cadre_labelled.csv", row.names = FALSE)
+
+
 plot <-ggplot(data=Cadre_labelled)+
   geom_bar(aes(x=Year,y=ceiling(CI50/WeeksPerYr/(HrsPerWeek*MaxUtilization)),fill=RoleDescription),stat="identity")+
   theme_bw()+
   scale_x_continuous(breaks = c(2021,2025,2030,2035))+
-  ylim(0,ymax)+
-  facet_grid(RoleDescription ~ .)+
-  labs(x="Year",y="Minimum staff count",fill="Cadre",title=paste("Minimum staff count by cadre - ",ma$test_name[1]))+
+ ylim(0,ymax)+
+  facet_grid(RoleDescription ~ test_name )+
+ labs(x="Year",y="Minimum staff count",fill="Cadre",title=paste("Minimum staff count by cadre"))+
   theme(
-    #strip.background = element_blank(),
-    strip.text.y = element_blank(),
+    strip.background = element_blank(),
+    strip.text.y = element_text(size = .1, colour = 'white'),
     plot.title = element_text(
       hjust = 0,  # Left align
       size = 16,
@@ -433,7 +444,7 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
                 aes(x = Year, y = MeanHrs/WeeksPerYr, group = ServiceCat),
                 method = "loess", se = FALSE, color = "black", size = 1) +
     #ylim(0, ymax) +
-    facet_wrap(~reorder(ServiceCat, -filtered_data$MeanHrs), scales = "free_y", nrow =5) +  # Facet by reordered ServiceCat
+    facet_grid(test_name~reorder(ServiceCat, -filtered_data$MeanHrs)) +  # Facet by reordered ServiceCat
     scale_x_continuous(breaks = c(2021, 2025, 2030, 2035)) +
     # scale_y_continuous(sec.axis = sec_axis(~ . / hrsperweek, name = "", breaks = NULL)) +  # Make secondary axis invisible
     sc_fillScale +  # Include the fill scale
@@ -451,7 +462,10 @@ individual_service_category_plot <- function(rv, plotly=TRUE){
       axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),  # Add right margin to y-axis title
       axis.title.x = element_text(size = 14, face = "bold"),
       strip.text = element_text(size = 13, face = "bold"),
-      plot.title = element_text(size = 14, face = "bold", margin = margin(b = 10)),
+      strip.text.x = element_text(size = 9, face = "bold",angle = 60, margin=margin(t = 100, b = 10), hjust=0),
+      #strip.background = element_rect(fill = "lightgray", size = 10),
+      strip.placement = "outside",
+      plot.title = element_text(size = 14, face = "bold", margin = margin(b = 400)),
       panel.spacing.x = unit(0, "pt"),
       panel.spacing.y = unit(0, "pt"),
       plot.margin = margin(t = 10, r = 1, b = 1, l = 50, unit = "pt") 
@@ -507,9 +521,9 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
   plot <- ggplot(temp_clin, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = Category)) +
     geom_bar(stat = "identity", position = "dodge", alpha = 0.9) +
     scale_fill_viridis_d() +  # Use Viridis color scale
-    facet_wrap(~ reorder(Category, -temp_clin$MeanHrs), scales = "free_y", nrow = 4)+ #this is for rows
+    facet_grid(test_name ~ reorder(Category, -temp_clin$MeanHrs))+ #this is for rows
     theme(panel.spacing = unit(1, "pt"))+
-    labs(title = paste("Hours per Week by Clinical Category -", mc$test_name[1]),
+    labs(title = paste("Hours per Week by Clinical Category"),
          x = "Year", y = "Hours per Week per Catchment Pop") +
     #theme_minimal() +  # Use minimal theme for clarity
     cc_fillScale +  # Use the defined fill color scale

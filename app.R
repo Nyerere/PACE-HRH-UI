@@ -14,7 +14,7 @@ ui <- fluidPage(
                 ")),
                 tags$head(
                   tags$link(rel="shortcut icon", href = "assets/favicon.ico"),
-                  tags$link(rel ="stylesheet", type="text/css", href = "css/styles.css"),
+                   tags$link(rel ="stylesheet", type="text/css", href = "css/styles.css"),
                   #--------------------------
                   #load project title from global.R
                   tags$title({project_title})
