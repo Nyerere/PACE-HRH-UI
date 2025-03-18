@@ -1,15 +1,6 @@
 # PACE-HRH-UI
 
-In the rapidly evolving landscape of population health management, there
-is a critical and pressing need for tools that enable efficient capacity
-estimation, taking into account various dynamic factors such as
-population demographics, seasonal trends, and health-related tasks. To
-address this challenge, we introduce an open-source software designed to
-serve as a population-aware capacity estimator. This application offers
-users the ability to configure inputs related to population size,
-seasonal variations, and specific health tasks, thereby providing
-customized capacity planning solutions tailored to different regions and
-diverse needs. <br><br> PACE-HRH-UI is a shinyapp that encapulates the
+PACE-HRH is a simulation model that enables human resources for health (HRH) managers to explore future workforce needs. It offers several additional capabilities over other models, for example, allowing for sub-national level forecasts, incorporating statistical uncertainty into forecasts that generate a confidence interval (a range of likely values) for workload estimates, and allowing for workload to be estimated for specific cadres of workers. PACE-HRH enables users to investigate how needs differ across multiple different contexts that exist in a health system. In Ethiopia, for example, the model can forecast capacity for different health post types and explore the impact of programmatic changes, like adjustments to catchment size, health worker (HW) utilization, or task shifting between cadres. The open-source PACE-HRH model has been utilized in Ethiopia in collaboration with the Ministry of Health, MERQ Consultancy, Vital Wave, and the Institute for Disease Modeling (IDM) (part of the Gates Foundation). <br><br> [PACE-HRH-UI](https://github.com/InstituteforDiseaseModeling/PACE-HRH-UI) is a shinyapp that encapulates the
 [PACE-HRH](https://github.com/InstituteforDiseaseModeling/PACE-HRH/releases)
 package which employs stochastic simulation for capacity projections
 based on excel spreadsheets configurations, it offers users a friendly
@@ -17,12 +8,33 @@ interface to visualization the input data and simulation results. Users
 can also download and coompare results from different run for further
 analysis.
 
+For detailed technical documentation and training videos, visit the [wiki](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki). 
+
 ### Download the app
 
 Install the most recent version of the PACE-HRH-UI binary file from our
-[releases](https://github.com/InstituteforDiseaseModeling/PACE-HRH-UI/releases)
+[releases](https://github.com/vitalwaveinc/PACE-HRH-UI/releases)
 
-### Run the app locally
+### Install and Run on Windows without Git and Rstudio
+
+To install the app in a separate environment: <br> Download
+`start_pace_ui.bat` and run it by double clicking it (or open a
+commandline window to your downloaded folder to run it). If this is your first time installing, please follow the [step by step guide](https://docs.google.com/document/d/1yvHEMq0-rkxhrvgNTegi4y2w3aSkZyLKGn7F7onsK4Q/edit?tab=t.0) for installation and
+running the app. <br> Once installed on your desired folder, for future
+use, you should go to the subfolder with name PACE-HRH-UI-{version} and
+run the start_pace_ui.bat from there, this will start the app in offline mode and open
+your default browser so that you can interact with it. To close the app,
+simply press any key on the command prompt window. <br> You can zip this
+pre-installed self-contained folder and send it to those who do not have
+internet access, they should be able to run `start_pace_ui.bat` without
+installation. <br><br>
+If you need to update the app when there is a [new release](https://github.com/vitalwaveinc/PACE-HRH-UI/releases) available, 
+please follow this [video].
+
+### Making Targeted Changes to Model Parameters
+The PACE-HRH-UI app comes with predefined configurations files for Ethiopia, if you wish to update the model, please refer to the Technical Documentation section on [Making Targeted Changes to Model Parameters](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Making-Targeted-Changes-to-Model-Parameters). 
+
+### Run the App Locally
 
 The first step is torun `install_packages.R`, once you have all the
 dependent packages installed, in RStudio open `app.R` and click on "Run
@@ -39,51 +51,7 @@ runApp(port=8888)
 switch port between two runs, your data may not be saved in the same
 local storage.
 
-### Installation and Run on windows without Git and Rstudio
+### Implementing the Model 
 
-To install the app in a separate environment: <br> Download
-`start_pace_ui.bat` and run it by double clicking it (or open a
-commandline window to your downloaded folder to run it). If this is your first time installing, please follow the [step by step guide](./Setup.md) for installation and
-running the app. <br> Once installed on your desired folder, for future
-use, you should go to the subfolder with name PACE-HRH-UI-{version} and
-run the start_pace_ui.bat from there, this will start the app in offline mode and open
-your default browser so that you can interact with it. To close the app,
-simply press any key on the command prompt window. <br> You can zip this
-pre-installed self-contained folder and send it to those who do not have
-internet access, they should be able to run `start_pace_ui.bat` without
-installation. <br><br>
-If you need to update the app when there is [new releases](https://github.com/InstituteforDiseaseModeling/PACE-HRH-UI/releases) available, 
-please follow the [upgrade existing app guide](./Update.md)
+For more information on implementing the model, please refer to the Technical Documentation section on [Running the Model](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Running-the-Model).
 
-### Note for App Maintainers
-The PACE-HRH-UI app comes with predefined configurations files aim for demo purposes, if you wish to develop your own custom configurations, please follow the [configuration guide](./Configuration.md)
-
-Please refer to this [Document](https://institutefordiseasemodeling.github.io/PACE-HRH-UI/Design.html) for current state and limitations.
-
-### Screenshots
-
--   From Homepage you can start a new simulation from scratch or use a
-    previous run configuration to start.
-
-![Home Page](./screenshots/1.homepage.png)
-
--   Configure page for simulation paramaters. ![Configuration
-    Page](./screenshots/2.configuration.png)
-
--   Configure page for input data:  This allows you to upload and preview custom
-    data. ![Configuration Data](./screenshots/3.configure_data.png)
-
--   Visualize your input data. ![Validation
-    Page](./screenshots/4.validation.png)
-
--   Run simulation page: This allows you set simulation iterations. ![Run
-    simulation Page](./screenshots/5.Run_simulation.png)
-
--   Check simulation logs for progress and potential issues.
-    ![simulation Logs Page](./screenshots/6.Run_simulation_log.png)
-
--   Visualize and download the pdf file. ![Download Pdf
-    Data](./screenshots/7.result_compare.png)
-
--   Download result files to your desktop and do your own analysis.
-    ![Download result files Page](./screenshots/9.download_files.png)
