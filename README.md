@@ -19,7 +19,7 @@ Install the most recent version of the PACE-HRH-UI binary file from our
 
 To install the app in a separate environment: <br> Download
 `start_pace_ui.bat` and run it by double clicking it (or open a
-commandline window to your downloaded folder to run it). If this is your first time installing, please follow the [step by step guide](https://docs.google.com/document/d/1yvHEMq0-rkxhrvgNTegi4y2w3aSkZyLKGn7F7onsK4Q/edit?tab=t.0) for installation and
+commandline window to your downloaded folder to run it). If this is your first time installing, please follow the [step by step guide](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Appendices#appendix-5-zip-file-installation) for installation and
 running the app. <br> Once installed on your desired folder, for future
 use, you should go to the subfolder with name PACE-HRH-UI-{version} and
 run the start_pace_ui.bat from there, this will start the app in offline mode and open
