@@ -420,64 +420,62 @@ seasonality_plot <- function(rv, plotly=TRUE){
 }
 
 # -----------------individual service category plot---------------------
+
+#INDIVIDUAL SERVICE CATEGORIES
 individual_service_category_plot <- function(rv, plotly=TRUE){
   StartYear <-  rv$start_year + 1 
   EndYear <-  rv$end_year 
   
   sc <- rv$Mean_ServiceCat
   ServiceCat_Clinical <- rv$Mean_ServiceCat %>%
-    subset(ClinicalOrNon=="Clinical") %>%
-    filter(Year >= StartYear & Year <= EndYear) %>% 
-    dplyr::mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep="")) %>%
+    filter(ClinicalOrNon == "Clinical", Year >= StartYear & Year <= EndYear) %>% 
+    mutate(Scenario_label = paste(test_name, " - Starting Pop=", format(BaselinePop, big.mark = ",")," - Hrs Per Week=",HrsPerWeek," - Weeks Per Year=",WeeksPerYr,sep="")) %>%
     group_by(Scenario_label, Year) %>%
-    dplyr::mutate(TotalHrs=sum(MeanHrs)) 
+    mutate(TotalHrs = sum(MeanHrs)) %>%
+    arrange(desc(MeanHrs / WeeksPerYr))
   
-  sorted_data <- ServiceCat_Clinical %>%
-    arrange(desc(MeanHrs/WeeksPerYr))
+  num_facets <- length(unique(ServiceCat_Clinical$test_name)) * length(unique(ServiceCat_Clinical$ServiceCat))
+  min_width_per_facet <- 400  # Minimum width per facet
+  plot_width <- min_width_per_facet * (num_facets / 2)  # Calculate total width
   
-  filtered_data <- sorted_data 
-  
-  plot <- ggplot() +
-    theme_bw() +
-    geom_bar(data = filtered_data, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = ServiceCat), stat = "identity", alpha = 0.9) +
-    geom_smooth(data = filter(filtered_data, ServiceCat != "Total Clinical"),  # Filter out "Total Clinical"
-                aes(x = Year, y = MeanHrs/WeeksPerYr, group = ServiceCat),
-                method = "loess", se = FALSE, color = "black", size = 1) +
-    #ylim(0, ymax) +
-    facet_grid(test_name~reorder(ServiceCat, -filtered_data$MeanHrs)) +  # Facet by reordered ServiceCat
+  plot <- ggplot(ServiceCat_Clinical, aes(x = Year, y = MeanHrs / WeeksPerYr, fill = ServiceCat)) +
+    theme_minimal() +
+    geom_bar( stat = "identity", position ="dodge", alpha = 0.9) +
+    geom_smooth(aes(x = Year, y = MeanHrs / WeeksPerYr, group = ServiceCat), method = "loess", se = FALSE, color = "black", size = 1) +
+    facet_grid(test_name~reorder(ServiceCat, -MeanHrs)) +
     scale_x_continuous(breaks = c(2021, 2025, 2030, 2035)) +
-    # scale_y_continuous(sec.axis = sec_axis(~ . / hrsperweek, name = "", breaks = NULL)) +  # Make secondary axis invisible
-    sc_fillScale +  # Include the fill scale
+    scale_fill_manual(values = sc_colours) +  # Ensure this is defined
     labs(
       x = "Year",
       y = "Hours per Week per Catchment Pop",
-      title = paste("Time Allocation by Service Category -",sc$test_name[1])
+      title = paste("Time Allocation by Service Category") #Adjusted to avoid confusion during comparison
     ) +
     theme(
-      legend.position = "",  # Position legend at the bottom
-      legend.title = element_blank(),  # Remove legend title
-      legend.text = element_text(size = 13),  # Adjust legend text size
-      axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1, size = 10),
-      axis.text.y = element_text(size = 7),  # Adjust axis text size
-      axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),  # Add right margin to y-axis title
-      axis.title.x = element_text(size = 14, face = "bold"),
-      strip.text = element_text(size = 13, face = "bold"),
-      strip.text.x = element_text(size = 9, face = "bold",angle = 60, margin=margin(t = 100, b = 10), hjust=0),
-      #strip.background = element_rect(fill = "lightgray", size = 10),
+      legend.position = "none",
+      legend.title = element_blank(),
+      legend.text = element_text(size = 12,color = "black" ),
+      axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1, size = 10, color = "black"),
+      axis.text.y = element_text(size = 7, color = "black"),
+      axis.title.y = element_text(size = 12, face = "bold",color = "black", margin = margin(r = 10)),
+      axis.title.x = element_text(size = 12, face = "bold", color = "black"),
+      strip.text = element_text(size = 12, face = "bold", color = "black"),  # Adjusted for clarity
+      strip.text.x = element_text(size = 11, face = "bold", angle = 0, margin = margin(t = 10, b = 10), hjust = 0.5),  # Improved readability
       strip.placement = "outside",
-      plot.title = element_text(size = 14, face = "bold", margin = margin(b = 400)),
-      panel.spacing.x = unit(0, "pt"),
-      panel.spacing.y = unit(0, "pt"),
-      plot.margin = margin(t = 10, r = 1, b = 1, l = 50, unit = "pt") 
+      plot.title = element_text(size = 12, face = "bold", margin = margin(b = 10)),
+      panel.spacing.x = unit(5, "pt"),
+      panel.spacing.y = unit(5, "pt"),
+      plot.margin = margin(t = 20, r = 10, b = 10, l = 10, unit = "pt")
     )
   
-
   if(plotly){
-    ggplotly(plot)
+    ggplotly(plot) %>%
+      layout(hoverlabel = list(bgcolor = "white", font = list(size = 12)),
+             width = plot_width,  # Set fixed width
+             height = 600,  # Set fixed height
+             margin = list(l = 50, r = 50, t = 50, b = 50))
   } else{
     plot
   }
-  
 }
 
 # -----------------individual clinical category plot---------------------
@@ -494,9 +492,9 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
   #   dplyr::mutate(Scenario_label = paste(Scenario_ID, format(BaselinePop, big.mark = ","),"Starting Pop", sep=" "))  
   # 
   # temp_clin$Category <- factor(temp_clin$Category,ordered=TRUE,levels=unique(temp_clin$Category))
-
+  
   mc <- rv$Mean_ClinCat
-
+  
   StartYear <-  rv$start_year + 1
   EndYear <-  rv$end_year 
   temp_clin <- rv$Mean_ClinCat %>%
@@ -520,37 +518,42 @@ individual_clinical_category_plot <- function(rv, plotly=FALSE){
   # Plot the hours per week using geom_bar for each clinical category 
   plot <- ggplot(temp_clin, aes(x = Year, y = MeanHrs/WeeksPerYr, fill = Category)) +
     geom_bar(stat = "identity", position = "dodge", alpha = 0.9) +
-    scale_fill_viridis_d() +  # Use Viridis color scale
     facet_grid(test_name ~ reorder(Category, -temp_clin$MeanHrs))+ #this is for rows
     theme(panel.spacing = unit(1, "pt"))+
     labs(title = paste("Hours per Week by Clinical Category"),
          x = "Year", y = "Hours per Week per Catchment Pop") +
-    #theme_minimal() +  # Use minimal theme for clarity
+    theme_minimal() +  # Use minimal theme for clarity
     cc_fillScale +  # Use the defined fill color scale
     cc_colorScale +
     theme(
       legend.position = "none",  # Position legend at the bottom
       legend.title = element_blank(),  # Remove legend title
-      legend.text = element_text(size=13, color="black"),  # Adjust legend text size and color
+      legend.text = element_text(size=12, color="black"),  # Adjust legend text size and color
       axis.text.x = element_text(angle=-90, vjust=0.5, hjust=1, size=13, color="black"),  # Dark black x-axis text
-      axis.text.y = element_text(size=13, color="black"),  # Dark black y-axis text
-      axis.title = element_text(size=14, face="bold", color="black"),  # Dark black axis titles
-      strip.text = element_text(size=13, face="bold", color="black"),  # Dark black facet labels
+      axis.text.y = element_text(size=12, color="black"),  # Dark black y-axis text
+      axis.title = element_text(size=12, face="bold", color="black"),  # Dark black axis titles
+      strip.text = element_text(size=12, face="bold", color="black"), # Dark black facet labels
+      plot.margin = margin(10, 10, 10, 10),
       plot.title = element_text(size=14, face="bold", color="black", margin=margin(b=10))) # Dark black plot title
   
   
   # Add trend line (smoothed line) to the plot
   plot <- plot +
     geom_smooth(aes(group = Category), method = "loess", se = FALSE, color = "black", size = 1)
-
-
+  
   
   if(plotly){
-    ggplotly(plot)
+    ggplotly(plot) %>%
+      layout(hoverlabel = list(bgcolor = "white", font = list(size = 12)),
+             width = plot_width,  # Set fixed width
+             height = 600,  # Set fixed height
+             margin = list(l = 50, r = 50, t = 50, b = 50))
   } else{
     plot
   }
 }
+
+
 
 
 
