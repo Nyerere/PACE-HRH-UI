@@ -10,7 +10,7 @@ analysis.
 
 For detailed technical documentation and training videos, visit the [wiki](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki). 
 
-### Download the app
+### Download the app as a Zip file
 
 Install the most recent version of the PACE-HRH-UI binary file from our
 [releases](https://github.com/vitalwaveinc/PACE-HRH-UI/releases)
