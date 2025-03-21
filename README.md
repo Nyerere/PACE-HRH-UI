@@ -30,6 +30,10 @@ please follow this [video].
 ### Making Targeted Changes to Model Parameters
 The PACE-HRH-UI app comes with predefined configurations files for Ethiopia, if you wish to update the model, please refer to the Technical Documentation section on [Making Targeted Changes to Model Parameters](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Making-Targeted-Changes-to-Model-Parameters). 
 
+### Implementing the Model 
+
+For more information on implementing the model, please refer to the Technical Documentation section on [Running the Model](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Running-the-Model).
+
 ### Alternative Run Method: Run the App Locally
 
 This is an alternative to downloading the app as a zip file. The first step is to run `install_packages.R`, once you have all the
@@ -46,8 +50,3 @@ runApp(port=8888)
 <http://localhost:8888>, you can use any port as you wish but if you
 switch port between two runs, your data may not be saved in the same
 local storage.
-
-### Implementing the Model 
-
-For more information on implementing the model, please refer to the Technical Documentation section on [Running the Model](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Running-the-Model).
-
