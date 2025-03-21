@@ -10,16 +10,12 @@ analysis.
 
 For detailed technical documentation and training videos, visit the [wiki](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki). 
 
-### Download the app as a Zip file
+### Download the App as a Zip File
 
-Install the most recent version of the PACE-HRH-UI binary file from our
+Install the most recent version of the PACE-HRH-UI zip file from our
 [releases](https://github.com/vitalwaveinc/PACE-HRH-UI/releases)
 
-### Install and Run on Windows without Git and Rstudio
-
-To install the app in a separate environment: <br> Download
-`start_pace_ui.bat` and run it by double clicking it (or open a
-commandline window to your downloaded folder to run it). If this is your first time installing, please follow the [step by step guide](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Appendices#appendix-5-zip-file-installation) for installation and
+If this is your first time installing, please follow the [step by step guide](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Appendices#appendix-5-zip-file-installation) for installation and
 running the app. <br> Once installed on your desired folder, for future
 use, you should go to the subfolder with name PACE-HRH-UI-{version} and
 run the start_pace_ui.bat from there, this will start the app in offline mode and open
@@ -34,9 +30,9 @@ please follow this [video].
 ### Making Targeted Changes to Model Parameters
 The PACE-HRH-UI app comes with predefined configurations files for Ethiopia, if you wish to update the model, please refer to the Technical Documentation section on [Making Targeted Changes to Model Parameters](https://github.com/vitalwaveinc/PACE-HRH-UI/wiki/Model-Implementation:-Making-Targeted-Changes-to-Model-Parameters). 
 
-### Run the App Locally
+### Alternative Run Method: Run the App Locally
 
-The first step is torun `install_packages.R`, once you have all the
+This is an alternative to downloading the app as a zip file. The first step is to run `install_packages.R`, once you have all the
 dependent packages installed, in RStudio open `app.R` and click on "Run
 App". Alternatively you can launch the app from the RStudio console with
 the following:
